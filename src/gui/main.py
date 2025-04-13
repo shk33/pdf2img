@@ -13,7 +13,7 @@ class Pdf2ImgApp(ctk.CTk):
         super().__init__()
 
         # Set the window icon (this will also show up on the taskbar)
-        self.iconbitmap(self._resource_path(RELATIVE_POPPLER_PATH))
+        self.iconbitmap(self._resource_path(ICON_PATH))
         self.title("PDF to Image Converter")
         self.geometry("600x600")
         self.configure(bg="#1e1e1e")
