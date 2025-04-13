@@ -97,8 +97,10 @@ class Pdf2ImgApp(ctk.CTk):
 
             kwargs = {"dpi": dpi}
 
+            self.log_box.insert("end", f"Platform: {platform.system()}\n")
             if platform.system() == "Windows":
                 kwargs["poppler_path"] = self._resource_path(RELATIVE_POPPLER_PATH)
+                self.log_box.insert("end", f"Poppler Path: {self._resource_path(RELATIVE_POPPLER_PATH)}\n")
 
             pages = convert_from_path(pdf_path, **kwargs)
 
