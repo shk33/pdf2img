@@ -31,8 +31,8 @@ jobs:
       run: |
         pyinstaller --onefile --windowed --name Pdf2ImgApp src/gui/main.py
 
-    - name: Upload executable
-      uses: actions/upload-artifact@v3
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3.1.3
       with:
         name: Pdf2ImgApp
         path: dist/Pdf2ImgApp.exe
