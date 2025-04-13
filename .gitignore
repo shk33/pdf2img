@@ -5,6 +5,8 @@
 # Ignore the "output" folder
 /output/
 /secrets/
+/dist/
+/build/
 /scraper-env/
 __pycache__/
 *.pyc
