@@ -5,7 +5,7 @@ from pdf2image import convert_from_path
 import os
 import sys
 
-RELATIVE_POPPLER_PATH = os.path.join("poppler", "Library", "bin")
+RELATIVE_POPPLER_PATH = os.path.join("poppler", "poppler-24.08.0", "Library", "bin")
 
 class Pdf2ImgApp(ctk.CTk):
     def __init__(self):
