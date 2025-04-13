@@ -3,12 +3,16 @@ from PyInstaller.utils.hooks import collect_data_files
 import os
 
 poppler_path = os.path.join("poppler", "poppler-24.08.0", "Library", "bin")
+icon_path = os.path.join("assets", "icon.ico")
 
 a = Analysis(
     ['src/gui/main.py'],
     pathex=[],
     binaries=[],
-    datas=[(poppler_path, poppler_path)],
+    datas=[
+        (poppler_path, poppler_path),
+        (icon_path, 'assets')
+    ],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

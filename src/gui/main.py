@@ -6,11 +6,14 @@ import os
 import sys
 
 RELATIVE_POPPLER_PATH = os.path.join("poppler", "poppler-24.08.0", "Library", "bin")
+ICON_PATH = os.path.join("assets", "icon.ico")
 
 class Pdf2ImgApp(ctk.CTk):
     def __init__(self):
         super().__init__()
 
+        # Set the window icon (this will also show up on the taskbar)
+        self.window.iconbitmap(self._resource_path(RELATIVE_POPPLER_PATH)) 
         self.title("PDF to Image Converter")
         self.geometry("600x600")
         self.configure(bg="#1e1e1e")
