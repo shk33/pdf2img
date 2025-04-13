@@ -1,11 +1,14 @@
 # -*- mode: python ; coding: utf-8 -*-
+from PyInstaller.utils.hooks import collect_data_files
+import os
 
+poppler_path = os.path.join("poppler", "Library", "bin")
 
 a = Analysis(
     ['src/gui/main.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[(poppler_path, poppler_path)],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

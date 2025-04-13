@@ -26,6 +26,7 @@ jobs:
         Invoke-WebRequest -Uri "https://github.com/oschwartz10612/poppler-windows/releases/download/v24.08.0-0/Release-24.08.0-0.zip" -OutFile "poppler.zip"
         Expand-Archive -Path "poppler.zip" -DestinationPath "poppler"
         "$pwd\poppler\Library\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        Remove-Item "poppler.zip"
       shell: pwsh
 
     - name: Build executable with PyInstaller

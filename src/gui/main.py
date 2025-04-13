@@ -1,7 +1,11 @@
+import platform 
 import customtkinter as ctk
 from tkinter import filedialog
 from pdf2image import convert_from_path
 import os
+import sys
+
+RELATIVE_POPPLER_PATH = os.path.join("poppler", "Library", "bin")
 
 class Pdf2ImgApp(ctk.CTk):
     def __init__(self):
@@ -77,12 +81,27 @@ class Pdf2ImgApp(ctk.CTk):
             self.log_box.insert("end", f"→ Converting: {path}\n")
             self._convert_pdf_to_image(path)
 
+    def _resource_path(relative_path):
+        """ Get absolute path to resource, works for PyInstaller """
+        try:
+            base_path = sys._MEIPASS  # PyInstaller temporary folder
+        except Exception:
+            base_path = os.path.abspath(".")
+
+        return os.path.join(base_path, relative_path)
+
     def _convert_pdf_to_image(self, pdf_path, dpi=300):
         try:
             convert_first = self.only_first_page.get()
             crop_box = self._get_crop_box()
 
-            pages = convert_from_path(pdf_path, dpi=dpi)
+            kwargs = {"dpi": dpi}
+
+            if platform.system() == "Windows":
+                kwargs["poppler_path"] = self._resource_path(RELATIVE_POPPLER_PATH)
+
+            pages = convert_from_path(pdf_path, **kwargs)
+
             if convert_first:
                 pages = [pages[0]]
 
