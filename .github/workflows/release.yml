@@ -22,6 +22,6 @@ jobs:
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
       with:
-        files: Pdf2Img.exe
+        files: pdf2img.exe
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
