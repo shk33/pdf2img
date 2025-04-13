@@ -31,10 +31,10 @@ jobs:
 
     - name: Build executable with PyInstaller
       run: |
-        pyinstaller --onefile --windowed --name Pdf2ImgApp src/gui/main.py
+        pyinstaller pdf2img.spec
 
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
-        name: Pdf2ImgApp
-        path: dist/Pdf2ImgApp.exe
+        name: Pdf2Img
+        path: dist/pdf2img.exe
