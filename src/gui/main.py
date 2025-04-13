@@ -4,17 +4,24 @@ from pdf2image import convert_from_path
 import os
 
 class Pdf2ImgApp(ctk.CTk):
-
     def __init__(self):
         super().__init__()
 
         self.title("PDF to Image Converter")
-        self.geometry("600x460")
+        self.geometry("600x600")
         self.configure(bg="#1e1e1e")
-        self.output_folder = None
 
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("green")
+
+        self.output_folder = None
+        self.only_first_page = ctk.BooleanVar(value=True)
+        self.crop_values = {
+            "left": ctk.StringVar(value="180"),
+            "top": ctk.StringVar(value="200"),
+            "right": ctk.StringVar(value="2200"),
+            "bottom": ctk.StringVar(value="2500"),
+        }
 
         self._build_ui()
 
@@ -25,14 +32,30 @@ class Pdf2ImgApp(ctk.CTk):
         self.title_label = ctk.CTkLabel(self.frame, text="Select PDF files to convert", font=ctk.CTkFont(size=18, weight="bold"))
         self.title_label.pack(pady=10)
 
-        self.output_button = ctk.CTkButton(self.frame, text="Choose Output Folder", command=self._choose_output_folder, fg_color="#2a8c6f", hover_color="#206a58")
-        self.output_button.pack()
-
-        self.folder_label = ctk.CTkLabel(self.frame, text="Output: [Same as PDF Path]", text_color="#a0ffa0", font=ctk.CTkFont(size=12))
-        self.folder_label.pack(pady=4)
-
         self.select_files_button = ctk.CTkButton(self.frame, text="Select PDF Files", command=self._select_pdfs)
-        self.select_files_button.pack(pady=10)
+        self.select_files_button.pack(pady=12)
+
+        # Checkbox: Only convert first page
+        self.first_page_checkbox = ctk.CTkCheckBox(
+            self.frame, text="Only convert first page", variable=self.only_first_page)
+        self.first_page_checkbox.pack(pady=6)
+
+        # Crop input
+        crop_label = ctk.CTkLabel(self.frame, text="Crop (px): Left, Top, Right, Bottom")
+        crop_label.pack(pady=(6, 4))
+
+        crop_frame = ctk.CTkFrame(self.frame, fg_color="transparent")
+        crop_frame.pack(pady=12)
+
+        for key in ["left", "top", "right", "bottom"]:
+            entry = ctk.CTkEntry(crop_frame, width=80, textvariable=self.crop_values[key])
+            entry.pack(side="left", padx=5)
+
+        self.output_button = ctk.CTkButton(self.frame, text="Choose Output Folder", command=self._choose_output_folder)
+        self.output_button.pack(pady=3)
+
+        self.folder_label = ctk.CTkLabel(self.frame, text="Output: [Same as PDF]", text_color="#a0ffa0", font=ctk.CTkFont(size=12))
+        self.folder_label.pack(pady=6)
 
         self.log_box = ctk.CTkTextbox(self.frame, height=220, fg_color="#111111", text_color="#d0ffd6")
         self.log_box.pack(fill="both", expand=True)
@@ -48,22 +71,47 @@ class Pdf2ImgApp(ctk.CTk):
 
     def _select_pdfs(self):
         file_paths = filedialog.askopenfilenames(filetypes=[("PDF Files", "*.pdf")])
+        self.log_box.insert("end", "Convterting PDFs Wait Please...\n")
+
         for path in file_paths:
             self.log_box.insert("end", f"→ Converting: {path}\n")
             self._convert_pdf_to_image(path)
 
     def _convert_pdf_to_image(self, pdf_path, dpi=300):
         try:
+            convert_first = self.only_first_page.get()
+            crop_box = self._get_crop_box()
+
             pages = convert_from_path(pdf_path, dpi=dpi)
+            if convert_first:
+                pages = [pages[0]]
+
             base_name = os.path.splitext(os.path.basename(pdf_path))[0]
             target_dir = self.output_folder if self.output_folder else os.path.dirname(pdf_path)
 
             for i, page in enumerate(pages):
+                if crop_box:
+                    page = page.crop(crop_box)
+
                 out_path = os.path.join(target_dir, f"{base_name}_page{i+1}.png")
                 page.save(out_path, 'PNG')
                 self.log_box.insert("end", f"✓ Saved: {out_path}\n")
         except Exception as e:
             self.log_box.insert("end", f"✗ Error with {pdf_path}: {e}\n")
+
+    def _get_crop_box(self):
+        try:
+            l = int(self.crop_values["left"].get())
+            t = int(self.crop_values["top"].get())
+            r = int(self.crop_values["right"].get())
+            b = int(self.crop_values["bottom"].get())
+
+            if l == t == r == b == 0:
+                return None
+            return (l, t, r, b)
+        except ValueError:
+            self.log_box.insert("end", "⚠️ Invalid crop values. Skipping crop.\n")
+            return None
 
 
 if __name__ == "__main__":
