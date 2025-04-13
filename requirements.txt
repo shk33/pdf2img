@@ -1,0 +1,7 @@
+customtkinter==5.2.2
+darkdetect==0.8.0
+packaging==24.2
+pdf2image==1.17.0
+pillow==11.2.1
+tk==0.1.0
+tkinterdnd2==0.4.3

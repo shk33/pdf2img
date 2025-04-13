@@ -1,0 +1,10 @@
+# Ignore common files
+*.log
+*.csv
+
+# Ignore the "output" folder
+/output/
+/secrets/
+/scraper-env/
+__pycache__/
+*.pyc
