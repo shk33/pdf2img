@@ -81,7 +81,7 @@ class Pdf2ImgApp(ctk.CTk):
             self.log_box.insert("end", f"→ Converting: {path}\n")
             self._convert_pdf_to_image(path)
 
-    def _resource_path(relative_path):
+    def _resource_path(self, relative_path):
         """ Get absolute path to resource, works for PyInstaller """
         try:
             base_path = sys._MEIPASS  # PyInstaller temporary folder
