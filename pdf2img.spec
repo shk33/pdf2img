@@ -2,7 +2,7 @@
 from PyInstaller.utils.hooks import collect_data_files
 import os
 
-poppler_path = os.path.join("poppler", "Library", "bin")
+poppler_path = os.path.join("poppler", "poppler-24.08.0", "Library", "bin")
 
 a = Analysis(
     ['src/gui/main.py'],
