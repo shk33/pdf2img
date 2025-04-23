@@ -2,7 +2,7 @@ import platform
 import customtkinter as ctk
 from tkinter import filedialog
 from pdf2image import convert_from_path
-from PIL import ImageDraw
+from PIL import ImageDraw, Image, ImageFont
 import os
 import sys
 
@@ -26,7 +26,9 @@ class Pdf2ImgApp(ctk.CTk):
 
         self.output_folder = None
         self.only_first_page = ctk.BooleanVar(value=True)
-        self.hide_additives = ctk.BooleanVar(value=True) 
+        self.hide_additives = ctk.BooleanVar(value=True)
+        self.add_watermark = ctk.BooleanVar(value=False)
+        self.watermark_text = ctk.StringVar(value="Jhoana Gonzalez")
         self.crop_values = {
             "left": ctk.StringVar(value="180"),
             "top": ctk.StringVar(value="200"),
@@ -55,6 +57,16 @@ class Pdf2ImgApp(ctk.CTk):
         self.hide_additives_checkbox = ctk.CTkCheckBox(
             self.frame, text="Hide additives", variable=self.hide_additives)
         self.hide_additives_checkbox.pack(pady=6)
+
+        # Checkbox: Watermark
+        self.watermark_checkbox = ctk.CTkCheckBox(
+            self.frame, text="Watermark", variable=self.add_watermark)
+        self.watermark_checkbox.pack(pady=6)
+
+        # Entry for watermark text
+        self.watermark_entry = ctk.CTkEntry(
+            self.frame, textvariable=self.watermark_text, placeholder_text="Watermark Text")
+        self.watermark_entry.pack(pady=(0, 10))
 
         # Crop input
         crop_label = ctk.CTkLabel(self.frame, text="Crop (px): Left, Top, Right, Bottom")
@@ -132,6 +144,44 @@ class Pdf2ImgApp(ctk.CTk):
                     additive_box = (20, 500, 2000, 620)
                     draw.rectangle(additive_box, fill="white")
                     self.log_box.insert("end", f"🔒 Additive area hidden at {additive_box}\n")
+
+                if self.add_watermark.get():
+                    text = self.watermark_text.get()
+                    font_size = int(page.width / 10)
+
+                    try:
+                        font = ImageFont.truetype("arial.ttf", font_size)
+                    except:
+                        try:
+                            font = ImageFont.truetype("DejaVuSans.ttf", font_size)
+                        except:
+                            self.log_box.insert("end", "⚠️ Warning: No scalable font found. Watermark size may be small.\n")
+                            font = ImageFont.load_default()
+
+                    # Ensure both base and overlay are in RGBA and same size
+                    page = page.convert("RGBA")
+                    watermark = Image.new("RGBA", page.size, (255, 255, 255, 0))
+                    draw = ImageDraw.Draw(watermark)
+
+                    # Position text diagonally
+                    text_x = page.width / 4
+                    text_y = page.height / 2
+
+                    draw.text((text_x, text_y), text, font=font, fill=(255, 0, 0, 125))
+
+                    # Rotate watermark then paste it centered
+                    rotated = watermark.rotate(45, expand=True)
+
+                    # Make a blank transparent layer the same size as original page
+                    composite_layer = Image.new("RGBA", page.size, (255, 255, 255, 0))
+                    offset_x = (page.width - rotated.width) // 2
+                    offset_y = (page.height - rotated.height) // 2
+                    composite_layer.paste(rotated, (offset_x, offset_y), rotated)
+
+                    # Composite onto page
+                    page = Image.alpha_composite(page, composite_layer).convert("RGB")
+
+                    self.log_box.insert("end", f"💧 Watermark applied: \"{text}\"\n")
 
                 out_path = os.path.join(target_dir, f"{base_name}_page{i+1}.png")
                 page.save(out_path, 'PNG')
