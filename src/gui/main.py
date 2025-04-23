@@ -2,6 +2,7 @@ import platform
 import customtkinter as ctk
 from tkinter import filedialog
 from pdf2image import convert_from_path
+from PIL import ImageDraw
 import os
 import sys
 
@@ -12,8 +13,10 @@ class Pdf2ImgApp(ctk.CTk):
     def __init__(self):
         super().__init__()
 
+        if sys.platform.startswith("windows"):
+            self.iconbitmap(self._resource_path(ICON_PATH))
+        
         # Set the window icon (this will also show up on the taskbar)
-        self.iconbitmap(self._resource_path(ICON_PATH))
         self.title("PDF to Image Converter")
         self.geometry("600x600")
         self.configure(bg="#1e1e1e")
@@ -23,6 +26,7 @@ class Pdf2ImgApp(ctk.CTk):
 
         self.output_folder = None
         self.only_first_page = ctk.BooleanVar(value=True)
+        self.hide_additives = ctk.BooleanVar(value=True) 
         self.crop_values = {
             "left": ctk.StringVar(value="180"),
             "top": ctk.StringVar(value="200"),
@@ -46,6 +50,11 @@ class Pdf2ImgApp(ctk.CTk):
         self.first_page_checkbox = ctk.CTkCheckBox(
             self.frame, text="Only convert first page", variable=self.only_first_page)
         self.first_page_checkbox.pack(pady=6)
+
+        # Checkbox: Hide additives
+        self.hide_additives_checkbox = ctk.CTkCheckBox(
+            self.frame, text="Hide additives", variable=self.hide_additives)
+        self.hide_additives_checkbox.pack(pady=6)
 
         # Crop input
         crop_label = ctk.CTkLabel(self.frame, text="Crop (px): Left, Top, Right, Bottom")
@@ -97,6 +106,7 @@ class Pdf2ImgApp(ctk.CTk):
         try:
             convert_first = self.only_first_page.get()
             crop_box = self._get_crop_box()
+            hide_add = self.hide_additives.get()
 
             kwargs = {"dpi": dpi}
 
@@ -116,6 +126,12 @@ class Pdf2ImgApp(ctk.CTk):
             for i, page in enumerate(pages):
                 if crop_box:
                     page = page.crop(crop_box)
+                
+                if hide_add:
+                    draw = ImageDraw.Draw(page)
+                    additive_box = (20, 500, 2000, 620)
+                    draw.rectangle(additive_box, fill="white")
+                    self.log_box.insert("end", f"🔒 Additive area hidden at {additive_box}\n")
 
                 out_path = os.path.join(target_dir, f"{base_name}_page{i+1}.png")
                 page.save(out_path, 'PNG')
