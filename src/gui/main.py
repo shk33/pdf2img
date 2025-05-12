@@ -27,6 +27,7 @@ class Pdf2ImgApp(ctk.CTk):
         self.output_folder = None
         self.only_first_page = ctk.BooleanVar(value=True)
         self.hide_additives = ctk.BooleanVar(value=True)
+        self.hide_interest_rate = ctk.BooleanVar(value=True)
         self.add_watermark = ctk.BooleanVar(value=False)
         self.watermark_text = ctk.StringVar(value="Jhoana Gonzalez")
         self.crop_values = {
@@ -55,12 +56,17 @@ class Pdf2ImgApp(ctk.CTk):
 
         # Checkbox: Hide additives
         self.hide_additives_checkbox = ctk.CTkCheckBox(
-            self.frame, text="Hide additives", variable=self.hide_additives)
+            self.frame, text="Esconder Aditivas", variable=self.hide_additives)
         self.hide_additives_checkbox.pack(pady=6)
+
+        # Checkbox: Hide interest rate
+        self.hide_interest_rate_checkbox = ctk.CTkCheckBox(
+            self.frame, text="Esconder Tasa de Interes", variable=self.hide_interest_rate)
+        self.hide_interest_rate_checkbox.pack(pady=6)
 
         # Checkbox: Watermark
         self.watermark_checkbox = ctk.CTkCheckBox(
-            self.frame, text="Watermark", variable=self.add_watermark)
+            self.frame, text="Colocar Marca de Agua", variable=self.add_watermark)
         self.watermark_checkbox.pack(pady=6)
 
         # Entry for watermark text
@@ -119,6 +125,7 @@ class Pdf2ImgApp(ctk.CTk):
             convert_first = self.only_first_page.get()
             crop_box = self._get_crop_box()
             hide_add = self.hide_additives.get()
+            hide_interest_rate = self.hide_interest_rate.get()
 
             kwargs = {"dpi": dpi}
 
@@ -144,6 +151,12 @@ class Pdf2ImgApp(ctk.CTk):
                     additive_box = (20, 500, 2000, 620)
                     draw.rectangle(additive_box, fill="white")
                     self.log_box.insert("end", f"🔒 Additive area hidden at {additive_box}\n")
+
+                if hide_interest_rate:
+                    draw = ImageDraw.Draw(page)
+                    interest_rate_box = (400, 1500, 1100, 1640)
+                    draw.rectangle(interest_rate_box, fill="white")
+                    self.log_box.insert("end", f"🔒 Interest rate area hidden at {interest_rate_box}\n")
 
                 if self.add_watermark.get():
                     text = self.watermark_text.get()
