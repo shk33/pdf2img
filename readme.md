@@ -30,3 +30,17 @@ Run
 ```bash
 pyinstaller pdf2img.spec
 ```
+
+## Github CI to Compile
+
+Tag your release
+```bash
+git tag v1.3.0
+```
+
+Push your tags
+```bash
+git push --tags
+```
+
+In Releases you will be able to download `pdf2img.exe`
